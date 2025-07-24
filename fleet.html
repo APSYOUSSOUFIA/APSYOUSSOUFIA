@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title> استمارة النقل المدرسي- إقليم اليوسفية</title>
+   <script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
+import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc, serverTimestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAaBIcZrLgaREvH7KLx9MqUql8U-QZnmuM",
+    authDomain: "flotte-6c64a.firebaseapp.com",
+    projectId: "flotte-6c64a",
+    storageBucket: "flotte-6c64a.appspot.com",
+    messagingSenderId: "617235864796",
+    appId: "1:617235864796:web:f6a7a109c24560dc232819",
+    measurementId: "G-VZNYDCPL78"
+  };
+
+const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+const auth = getAuth(app);
+onAuthStateChanged(auth, (user) => {
+  console.log("حالة المستخدم في onAuthStateChanged:", user);
+  if (!user) {
+    
+    window.location.href = "login1.html";
+  }
+});
+
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  signOut(auth).then(() => {
+    window.location.href = 'login1.html';  // إعادة التوجيه مباشرة بدون alert
+  }).catch(() => {
+    window.location.href = 'login1.html';  // حتى لو حدث خطأ، نعيد التوجيه مباشرة
+  });
+});
+async function submitAndSave() {
+  const form = document.getElementById('transportForm');
+
+  if (!form.checkValidity()) {
+    alert('⚠️ المرجو تعبئة كل الحقول المطلوبة بشكل صحيح.');
+    form.reportValidity();
+    return;
+  }
+
+  // تحقق اختيار جهة واحدة على الأقل
+  const grantorCheckboxes = document.querySelectorAll('input[name="grantor"]:checked');
+  if (grantorCheckboxes.length === 0) {
+    alert('⚠️ المرجو اختيار جهة واحدة على الأقل من الجهات المانحة.');
+    return;
+  }
+
+  // تحقق وجود مؤسسة تعليمية واحدة على الأقل
+  const institutionEls = document.querySelectorAll('.institution');
+  if (institutionEls.length === 0) {
+    alert('⚠️ المرجو إضافة مؤسسة تعليمية واحدة على الأقل.');
+    return;
+  }
+
+  // تحقق المؤسسات والدواوير كما في كودك الأصلي...
+  for (const instEl of institutionEls) {
+    const levelSelect = instEl.querySelector('select[name^="school_level_"]');
+    if (!levelSelect || !levelSelect.value) {
+      alert('⚠️ المرجو اختيار السلك لكل مؤسسة تعليمية.');
+      levelSelect.focus();
+      return;
+    }
+
+    const villages = instEl.querySelectorAll('.village');
+    if (villages.length === 0) {
+      alert('⚠️ المرجو إضافة دوار واحد على الأقل لكل مؤسسة تعليمية.');
+      return;
+    }
+
+    for (const villageEl of villages) {
+      const inputs = villageEl.querySelectorAll('input[required], select[required]');
+      for (const input of inputs) {
+        if (!input.value) {
+          alert('⚠️ المرجو تعبئة جميع حقول الدواوير المطلوبة.');
+          input.focus();
+          return;
+        }
+      }
+      const beneficiaries_total = parseInt(villageEl.querySelector(`[name^="beneficiaries_total_"]`).value);
+      const beneficiaries_female = parseInt(villageEl.querySelector(`[name^="beneficiaries_female_"]`).value);
+
+      if (beneficiaries_female > beneficiaries_total) {
+        alert("⚠️ عدد الإناث لا يمكن أن يكون أكبر من مجموع المستفيدين.");
+        villageEl.querySelector(`[name^="beneficiaries_female_"]`).focus();
+        return;
+      }
+    }
+  }
+
+  // تجميع البيانات من النموذج
+  const formData = new FormData(form);
+  const data = {};
+
+  formData.forEach((value, key) => {
+    if (data[key]) {
+      if (Array.isArray(data[key])) {
+        data[key].push(value);
+      } else {
+        data[key] = [data[key], value];
+      }
+    } else {
+      data[key] = value;
+    }
+  });
+
+  // معالجة checkboxes الجهات كمصفوفة
+  const grantors = [];
+  grantorCheckboxes.forEach(cb => grantors.push(cb.value));
+  data['grantors'] = grantors;
+
+  const grantorOtherInput = form.querySelector('input[name="grantor_other"]');
+  if (grantorOtherInput && grantorOtherInput.value.trim() !== '') {
+    data['grantors'].push(grantorOtherInput.value.trim());
+  }
+
+  // معالجة المؤسسات والدواوير
+  const institutions = [];
+  institutionEls.forEach(instEl => {
+    const institution = {
+      school_name: instEl.querySelector(`[name^="school_name_"]`).value,
+      school_level: instEl.querySelector(`[name^="school_level_"]`).value,
+      villages: []
+    };
+
+    instEl.querySelectorAll('.village').forEach(villageEl => {
+      const village = {
+        village_name: villageEl.querySelector(`[name^="village_name_"]`).value,
+        distance_km: villageEl.querySelector(`[name^="distance_km_"]`).value,
+        distance_min: villageEl.querySelector(`[name^="distance_min_"]`).value,
+        road_type: villageEl.querySelector(`[name^="road_type_"]`).value,
+        beneficiaries_total: parseInt(villageEl.querySelector(`[name^="beneficiaries_total_"]`).value),
+        beneficiaries_female: parseInt(villageEl.querySelector(`[name^="beneficiaries_female_"]`).value),
+        monthly_contribution: villageEl.querySelector(`[name^="monthly_contribution_"]`).value,
+      };
+      institution.villages.push(village);
+    });
+
+    institutions.push(institution);
+  });
+
+  data['institutions'] = institutions;
+  data['timestamp'] = serverTimestamp();
+
+  // رقم مرجعي تلقائي
+  const today = new Date();
+  const datePart = today.toISOString().slice(0,10).replace(/-/g, '');
+  const randomPart = Math.floor(10000 + Math.random() * 90000);
+  data['reference_id'] = `REF-${datePart}-${randomPart}`;
+
+  // تحقق هل الرقم اللوحة موجود مسبقا
+ try {
+  const q = query(collection(db, "transportData"), where("plate_number", "==", data.plate_number));
+  const querySnapshot = await getDocs(q);
+
+  if (!querySnapshot.empty) {
+    const existingDoc = querySnapshot.docs[0];
+    const docRef = doc(db, "transportData", existingDoc.id);
+
+    const confirmUpdate = confirm("🚨 رقم السيارة مسجل مسبقاً. هل ترغب في تعديل المعطيات القديمة؟");
+    if (confirmUpdate) {
+      await updateDoc(docRef, data);
+      alert("✅ تم تعديل المعطيات بنجاح.");
+      window.print();  // ✅ الطباعة بعد التعديل
+    } else {
+      alert("❗ لم يتم تعديل المعطيات.");
+    }
+
+  } else {
+    await addDoc(collection(db, "transportData"), data);
+    alert("✅ تم حفظ المعطيات بنجاح.");
+    document.getElementById('refContainer').textContent = '📄 الرقم المرجعي: ' + data['reference_id'];
+    window.print();  // ✅ الطباعة بعد الحفظ الجديد
+  }
+} catch (error) {
+  console.error("❌ خطأ في الحفظ:", error);
+  alert("حدث خطأ أثناء حفظ المعطيات.");
+}
+
+}
+
+window.submitAndSave = submitAndSave;
+
+</script>
+
+  <style>
+@media print {
+  
+  #refContainer {
+    display: block !important;
+    font-weight: bold !important;
+    color: #003366 !important;
+    font-size: 14px !important;
+    margin-top: 20px !important;
+  }
+  /* إعداد صفحة A4 بوضعية Portrait مع هامش 1.5 سم */
+  @page {
+    size: A4 portrait;
+    margin: 1.5cm;
+  }
+
+  /* تنسيق عام للطباعة */
+  body {
+    font-size: 11px !important;
+    color: #000 !important;
+    background: white !important;
+    margin: 0; /* يعتمد الهامش على @page */
+  }
+
+  form {
+    padding: 10px !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  h2, h3, h4 {
+    font-size: 15px !important;
+    margin: 6px 0 !important;
+    color: #003366 !important;
+  }
+
+  label {
+    font-size: 10px !important;
+    margin-bottom: 2px !important;
+    color: #000 !important;
+  }
+
+  input, select {
+    padding: 5px 8px !important;
+    font-size: 10px !important;
+    border: 1px solid #666 !important;
+  }
+
+  .row > div {
+    flex: 1 1 45% !important;
+    min-width: 180px !important;
+  }
+
+  /* تصغير خانات الجهة المقتنية وتنظيمها */
+  .checkbox-group {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: flex-start !important;
+    gap: 6px !important;
+    margin-bottom: 10px !important;
+  }
+  .checkbox-group label {
+    flex: 1 1 22% !important; /* تقريبا 4 خيارات في الصف */
+    font-size: 9px !important;
+    padding: 4px 6px !important;
+    border-radius: 5px;
+    border: 1px solid #0056b3;
+    background-color: #e7f0ff;
+    user-select: none;
+    white-space: nowrap;
+  }
+
+  /* إخفاء الأزرار عند الطباعة */
+  button, .add-btn, .remove-btn {
+    display: none !important;
+  }
+}
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+      padding: 20px;
+      direction: rtl;
+      color: #222;
+    }
+        /* العناوين العليا */
+    .header-container {
+      max-width: 1000px;
+      margin: 0 auto 25px auto;
+      background: #e3f0ff;
+      padding: 15px 25px;
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(0, 0, 128, 0.2);
+      text-align: center;
+      color: #003366;
+      font-weight: 700;
+      line-height: 1.6;
+      font-size: 1.1rem;
+    }
+    .header-container .main-title {
+      margin-top: 12px;
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #002244;
+      border-top: 2px solid #003366;
+      padding-top: 10px;
+    }
+    h2, h3, h4 {
+      color: #0056b3;
+      margin-bottom: 12px;
+    }
+    form {
+      max-width: 1000px;
+      margin: auto;
+      background: white;
+      padding: 30px 35px 35px 35px;
+      border-radius: 12px;
+      box-shadow: 0 0 18px rgba(0,0,0,0.12);
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 6px;
+      margin-top: 18px;
+      user-select: none;
+    }
+    /* تنظيم الحقول بشكل صفوف من خانتين متجاورتين */
+    .row {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+    .row > div {
+      flex: 1 1 48%;
+      min-width: 250px;
+    }
+    input, select {
+      width: 100%;
+      padding: 9px 14px;
+      border: 1.8px solid #bbb;
+      border-radius: 6px;
+      box-sizing: border-box;
+      font-size: 15px;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    input:focus, select:focus {
+      border-color: #0056b3;
+      outline: none;
+      box-shadow: 0 0 8px rgba(0,86,179,0.5);
+    }
+    .checkbox-group {
+  display: flex !important;           /* بدل grid إلى flex */
+  flex-wrap: nowrap;                  /* منع الانكسار إلى سطر جديد */
+  gap: 20px;                         /* مسافة بين الخانات */
+  overflow-x: auto;                  /* إضافة تمرير أفقي في حال تجاوز العرض */
+  padding-bottom: 8px;               /* مسافة بسيطة أسفل للحشو */
+  direction: rtl;                    /* لضمان اتجاه الكتابة العربية */
+  justify-content: flex-start;       /* اجعل العناصر تبدأ من اليمين */
+  user-select: none;
+}
+
+.checkbox-group label {
+  flex-shrink: 0;                   /* منع تصغير عرض الخانة */
+  background: #e7f0ff;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1.8px solid #0056b3;
+  cursor: pointer;
+  font-weight: 500;
+  color: #004085;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
+  white-space: nowrap;              /* منع انكسار النص داخل الخانة */
+  transition: background-color 0.3s ease;
+}
+    /* الأزرار */
+    button[type="submit"] {
+      margin-top: 30px;
+      padding: 14px 42px;
+      background-color: #003366;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: 700;
+      float: left;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      box-shadow: 0 3px 8px rgba(0, 51, 102, 0.4);
+    }
+    button[type="submit"]:hover {
+      background-color: #002244;
+      transform: scale(1.05);
+      box-shadow: 0 6px 15px rgba(0, 34, 68, 0.6);
+    }
+    .add-btn {
+      margin-top: 22px;
+      padding: 11px 26px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      box-shadow: 0 3px 8px rgba(40, 167, 69, 0.4);
+    }
+    .add-btn:hover {
+      background-color: #218838;
+      transform: scale(1.05);
+      box-shadow: 0 6px 15px rgba(33, 136, 56, 0.6);
+    }
+    .remove-btn {
+      background: #dc3545;
+      padding: 5px 14px;
+      color: white;
+      border: none;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: 14px;
+      position: absolute;
+      top: 8px;
+      left: 12px;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      box-shadow: 0 2px 6px rgba(220, 53, 69, 0.6);
+      user-select: none;
+    }
+    .remove-btn:hover {
+      background: #a71d2a;
+      transform: scale(1.1);
+      box-shadow: 0 4px 10px rgba(167, 29, 42, 0.8);
+    }
+    .institution {
+      border: 1.5px solid #ccc;
+      border-radius: 12px;
+      padding: 22px 28px 28px 28px;
+      margin-top: 38px;
+      background: #fefefe;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.07);
+      position: relative;
+    }
+    .institution h3 {
+      margin-top: 0;
+      color: #003366;
+      position: relative;
+      padding-right: 36px;
+      user-select: none;
+    }
+    .village {
+      border: 1px solid #bbb;
+      border-radius: 8px;
+      padding: 16px 22px 22px 22px;
+      margin-top: 24px;
+      background: #fff;
+      box-shadow: 0 1px 10px rgba(0,0,0,0.04);
+      position: relative;
+    }
+    .village h5 {
+      margin-top: 0;
+      color: #0056b3;
+      position: relative;
+      padding-right: 36px;
+      user-select: none;
+    }
+    .institution h3, .village h5 {
+      position: relative;
+    }
+  </style>
+</head>
+<body>
+<!-- الجزء الأعلى - العناوين -->
+<div class="header-container">
+  <div>وزارة التربية الوطنية والتعليم الأولي والرياضة</div>
+  <div>الأكاديمية الجهوية مراكش آسفي</div>
+  <div>المديرية الإقليمية اليوسفية</div>
+  <div class="main-title">أسطول النقل المدرسي</div>
+  <div id="refContainer" style="font-weight: bold; color: #003366; margin-top: 20px;"></div>
+</div>
+<form id="transportForm">
+  <div class="row">
+  <div>
+    <label>الجماعة:</label>
+    <select name="commune" id="commune" required>
+      <option value="">-- اختر الجماعة --</option>
+      <option value="الكنتور">الكنتور</option>
+      <option value="اسبيعات">اسبيعات</option>
+      <option value="اجدور">اجدور</option>
+      <option value="الطياميم">الطياميم</option>
+      <option value="راس العين">راس العين</option>
+        <option value="جنان بويه ">جنان بويه </option>
+      <option value="لخوالقة">لخوالقة</option>
+      <option value="سيدي شيكر">سيدي شيكر</option>
+      <option value="إيغود">إيغود</option>
+    </select>
+  </div>
+</div>
+  <h2>🚌 معطيات السيارة</h2>
+ <div class="row">
+  <div>
+    <label>رقم لوحة السيارة:</label>
+    <input type="text" name="plate_number" placeholder="مثال: 12345 J" required />
+  </div>
+  <div>
+    <label>سنة الشروع في الاستعمال لأول مرة:</label>
+    <input type="number" name="year_started" min="1990" max="2050" placeholder="مثال: 2015" required />
+  </div>
+</div>
+
+<div class="row">
+  <div>
+    <label>حالة الاشتغال:</label>
+    <select name="status" required>
+      <option value="">-- اختر --</option>
+      <option value="تشتغل">تشتغل</option>
+      <option value="لا تشتغل">لا تشتغل</option>
+    </select>
+  </div>
+  <div>
+    <label>في حالة الاشتغال: حالتها الميكانيكية:</label>
+    <select name="mechanical_condition" required>
+      <option value="">-- اختر --</option>
+      <option value="جيدة">جيدة</option>
+      <option value="متوسطة">متوسطة</option>
+      <option value="متهالكة">متهالكة</option>
+    </select>
+  </div>
+</div>
+
+<div class="row">
+  <div>
+    <label>في حالة عدم الاشتغال: السبب:</label>
+    <input type="text" name="non_working_reason" placeholder="أذكر السبب" />
+  </div>
+  <div>
+    <label>عدد المقاعد:</label>
+    <input type="number" name="seats" min="1" placeholder="عدد المقاعد" required />
+  </div>
+</div>
+  <label>الجهة المقتنية / المانحة (يمكن اختيار أكثر من جهة في حالة اقتناء الحافلة من طرف عدة جهات):</label>
+<div class="checkbox-group">
+  <label><input type="checkbox" name="grantor" value="INDH"> المبادرة الوطنية للتنمية البشرية (INDH)</label>
+  <label><input type="checkbox" name="grantor" value="جهة"> مجلس الجهة</label>
+  <label><input type="checkbox" name="grantor" value="إقليم"> مجلس الإقليم</label>
+  <label><input type="checkbox" name="grantor" value="جماعة"> مجلس الجماعة</label>
+  <label><input type="checkbox" name="grantor" value="OCP"> المكتب الشريف للفوسفاط (OCP)</label>
+</div>
+<div class="row">
+  <div>
+    <label>جهة أخرى (إن وجدت):</label>
+    <input type="text" name="grantor_other" placeholder="جهة أخرى..." />
+  </div>
+  <div>
+    <label>عدد الرحلات يومياً:</label>
+    <input type="number" name="daily_trips" min="0" required placeholder="عدد الرحلات" />
+  </div>
+</div>
+
+  <h2>🚏 الجهة المكلفة بالتسيير</h2>
+  <div class="row">
+  <div>
+    <label>الاسم:</label>
+    <input type="text" name="manager_name" required placeholder="اسم الجمعية المكلفة" />
+  </div>
+  <div>
+    <label>المقر:</label>
+    <input type="text" name="manager_location" required placeholder="مقر الجمعية" />
+  </div>
+</div>
+
+<div class="row">
+  <div>
+    <label>رقم الهاتف:</label>
+    <input type="tel" name="manager_phone" required placeholder="0666126612 " />
+  </div>
+  <div></div>
+</div>
+
+  <h2>🏫 المؤسسات التعليمية المستفيدة</h2>
+
+  <div id="institutions"></div>
+
+  <button type="button" class="add-btn" onclick="addInstitution()">➕ إضافة مؤسسة تعليمية</button>
+
+<button type="button" onclick="submitAndSave()" style="float: left; background-color: #003366; color: white; border-radius: 10px; padding: 14px 42px; font-weight: bold;">
+📤 إرسال وطباعة الاستمارة
+</button>
+
+<button id="logoutBtn" type="button" style="position: absolute; top: 20px; left: 20px; padding: 10px 15px; background-color: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer;">
+  تسجيل الخروج
+</button>
+
+<script>
+  let institutionCounter = 0;
+
+  function addInstitution() {
+    institutionCounter++;
+    const container = document.getElementById('institutions');
+    const div = document.createElement('div');
+    div.className = 'institution';
+    div.id = `institution_${institutionCounter}`;
+    div.innerHTML = `
+      <h3>مؤسسة تعليمية رقم ${institutionCounter} <button type="button" class="remove-btn" onclick="removeElement('institution_${institutionCounter}')">🗑️ حذف المؤسسة</button>
+      </h3>
+
+      <div class="row">
+        <div>
+          <label>اسم المؤسسة التعليمية:</label>
+          <input type="text" name="school_name_${institutionCounter}" required>
+        </div>
+        <div>
+          <label>السلك:</label>
+          <select id="school_level_${institutionCounter}" name="school_level_${institutionCounter}" required>
+            <option value="">-- اختر --</option>
+            <option value="ابتدائي">ابتدائي</option>
+            <option value="إعدادي">إعدادي</option>
+            <option value="تأهيلي">تأهيلي</option>
+          </select>
+        </div>
+      </div>
+
+      <h4>🏘️ دواوير المؤسسة التعليمية</h4>
+      <div id="villages_${institutionCounter}"></div>
+
+      <button type="button" class="add-btn" onclick="checkAndAddVillage(${institutionCounter})">➕ إضافة دوار للمؤسسة التعليمية</button>
+    `;
+    container.appendChild(div);
+  }
+
+  function checkAndAddVillage(institutionId) {
+    const levelSelect = document.getElementById(`school_level_${institutionId}`);
+    if (!levelSelect.value) {
+      alert('⚠️ المرجو اختيار السلك أولاً قبل إضافة دواوير.');
+      return;
+    }
+    addVillage(institutionId);
+  }
+
+  function addVillage(institutionId) {
+    const container = document.getElementById(`villages_${institutionId}`);
+    const villageCount = container.children.length + 1;
+    const div = document.createElement('div');
+    div.className = 'village';
+    div.id = `village_${institutionId}_${villageCount}`;
+    div.innerHTML = `
+      <h5>دوار رقم ${villageCount} <button type="button" class="remove-btn" onclick="removeElement('village_${institutionId}_${villageCount}')">🗑️ حذف الدوار</button>
+      </h5>
+
+      <div class="row">
+        <div>
+          <label>اسم الدوار:</label>
+          <input type="text" name="village_name_${institutionId}_${villageCount}" required>
+        </div>
+        <div>
+          <label>المسافة (كم):</label>
+          <input type="number" name="distance_km_${institutionId}_${villageCount}" step="0.1" min="0" required>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>الزمن للوصول (دقائق):</label>
+          <input type="number" name="distance_min_${institutionId}_${villageCount}" min="0" required>
+        </div>
+        <div>
+          <label>نوعية المسالك:</label>
+          <select name="road_type_${institutionId}_${villageCount}" required>
+            <option value="">-- اختر --</option>
+            <option value="وعرة">وعرة</option>
+            <option value="متوسطة">متوسطة</option>
+            <option value="سهلة الولوج">سهلة الولوج</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>مجموع المستفيدين:</label>
+          <input type="number" name="beneficiaries_total_${institutionId}_${villageCount}" min="0" required>
+        </div>
+        <div>
+          <label>عدد الإناث منهم:</label>
+          <input type="number" name="beneficiaries_female_${institutionId}_${villageCount}" min="0" required>
+        </div>
+      </div>
+
+      <label>قيمة المساهمة الشهرية (درهم):</label>
+      <input type="number" name="monthly_contribution_${institutionId}_${villageCount}" min="0" required>
+    `;
+    container.appendChild(div);
+  }
+
+  function removeElement(id) {
+    const el = document.getElementById(id);
+    if(el) el.remove();
+  }
+  document.addEventListener('DOMContentLoaded', () => {
+  const statusSelect = document.querySelector('select[name="status"]');
+  const nonWorkingReasonInput = document.querySelector('input[name="non_working_reason"]').parentElement;
+
+  function toggleNonWorkingReason() {
+    if (statusSelect.value === 'لا تشتغل') {
+      nonWorkingReasonInput.style.display = 'block';
+      nonWorkingReasonInput.querySelector('input').required = true;
+    } else {
+      nonWorkingReasonInput.style.display = 'none';
+      nonWorkingReasonInput.querySelector('input').required = false;
+      nonWorkingReasonInput.querySelector('input').value = '';
+    }
+  }
+
+  statusSelect.addEventListener('change', toggleNonWorkingReason);
+
+  // استدعاء أولي لضبط العرض عند تحميل الصفحة
+  toggleNonWorkingReason();
+});
+</script>
+
+</body>
+</html>

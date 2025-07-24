@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>شكاية الحصول على المنحة الدراسية 2025-2026</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Amiri&display=swap');
+    body {
+      font-family: 'Amiri', serif;
+      background-color: #f0f0f5;
+      width: 450px;
+      margin: 10px auto;
+      padding: 15px;
+      border: 1px solid #999;
+      border-radius: 10px;
+      background: #ffffff;
+      direction: rtl;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+    .header h1 { font-size: 12px; margin: 0; }
+    .header h2 { font-size: 11px; margin: 0; }
+    h3 {
+      text-align: center;
+      font-size: 14px;
+      margin: 10px 0 15px;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 5px;
+      color: #1a252f;
+    }
+    label {
+      display: block;
+      margin: 5px 0 2px;
+      font-weight: bold;
+      font-size: 12px;
+    }
+    input, select {
+      width: 100%;
+      padding: 5px;
+      font-size: 12px;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+    }
+    .form-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: nowrap;
+      margin-bottom: 10px;
+    }
+    .form-group {
+      flex: 1;
+      min-width: 150px;
+    }
+    .form-footer {
+      margin-top: 15px;
+      display: flex;
+      justify-content: center;
+    }
+    .submit-button {
+      background-color: #3470af;
+      color: white;
+      padding: 10px 25px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      min-width: 150px;
+      transition: background-color 0.3s ease;
+    }
+    .submit-button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>وزارة التربية الوطنية والتعليم الأولي والرياضة</h1>
+    <h2>الأكاديمية الجهوية للتربية والتكوين: مراكش آسفي</h2>
+    <h2>المديرية الإقليمية: اليوسفية</h2>
+  </div>
+  <h3>شكاية الحصول على المنحة الدراسية<br>للموسم الدراسي 2025-2026</h3>
+  <form id="complaintForm" novalidate>
+    <h3 style="margin-top: 25px;">معطيات التلميذ(ة)</h3>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="studentFirstName">الاسم:</label>
+        <input type="text" id="studentFirstName" name="studentFirstName" required />
+      </div>
+      <div class="form-group">
+        <label for="studentLastName">النسب:</label>
+        <input type="text" id="studentLastName" name="studentLastName" required />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="massar">رقم مسار:</label>
+        <input type="text" id="massar" name="massar" required pattern="[A-Za-z][0-9]{9}" placeholder="مثال: G123456789" />
+      </div>
+      <div class="form-group">
+        <label for="birthDatePlace">تاريخ ومكان الازدياد:</label>
+        <input type="text" id="birthDatePlace" name="birthDatePlace" required placeholder="مثال: 01/01/2010 - اليوسفية" />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group" style="flex: 1 1 100%;">
+        <label for="familyAddress">العنوان العائلي:</label>
+        <input type="text" id="familyAddress" name="familyAddress" required />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="originalSchool">المؤسسة الأصلية:</label>
+        <input type="text" id="originalSchool" name="originalSchool" required />
+      </div>
+      <div class="form-group">
+        <label for="originalCommune">الجماعة (الأصلية):</label>
+        <input type="text" id="originalCommune" name="originalCommune" required />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="receptionSchool">مؤسسة الاستقبال:</label>
+        <input type="text" id="receptionSchool" name="receptionSchool" required />
+      </div>
+      <div class="form-group">
+        <label for="receptionCommune">الجماعة (الاستقبال):</label>
+        <input type="text" id="receptionCommune" name="receptionCommune" required />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="distanceKm">المسافة بين مؤسسة الاستقبال وعنوان السكن (كم):</label>
+        <input type="number" id="distanceKm" name="distanceKm" step="0.1" min="0" required />
+      </div>
+      <div class="form-group">
+        <label for="civilSocialId">المؤشر الاجتماعي للأسرة:</label>
+        <input type="text" id="civilSocialId" name="civilSocialId" required placeholder="مثال: 8.15" />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="healthStatus">الحالة الصحية:</label>
+        <select id="healthStatus" name="healthStatus" required>
+          <option value="">-- اختر --</option>
+          <option value="عادية">حالة عادية</option>
+          <option value="إعاقة">وجود إعاقة</option>
+          <option value="مرض مزمن">مرض مزمن</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="socialStatus">الوضعية الاجتماعية:</label>
+        <select id="socialStatus" name="socialStatus" required>
+          <option value="">-- اختر --</option>
+          <option value="عادية">وضعية عادية</option>
+          <option value="يتيم">يتيم</option>
+          <option value="متخلى عنه">متخلى عنه</option>
+          <option value="مكفول الأمة">مكفولي الأمة</option>
+          <option value="طلاق"> طلاق</option>
+          <option value=" سجن أحد الأبوين"> سجن أحد الأبوين</option>
+        </select>
+      </div>
+    </div>
+
+    <h3 style="margin-top: 25px;">معطيات ولي التلميذ(ة)</h3>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="guardianFirstName">الاسم (ولي الأمر):</label>
+        <input type="text" id="guardianFirstName" name="guardianFirstName" required />
+      </div>
+      <div class="form-group">
+        <label for="guardianLastName">النسب (ولي الأمر):</label>
+        <input type="text" id="guardianLastName" name="guardianLastName" required />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="guardianCNINumber">رقم البطاقة الوطنية (ولي الأمر):</label>
+        <input type="text" id="guardianCNINumber" name="guardianCNINumber" required pattern="[A-Za-z]{2}[0-9]{6}" placeholder="مثال: HA123456" />
+      </div>
+      <div class="form-group">
+        <label for="guardianJob">المهنة:</label>
+        <input type="text" id="guardianJob" name="guardianJob" required />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="guardianPhone">رقم الهاتف:</label>
+        <input type="tel" id="guardianPhone" name="guardianPhone" required pattern="0[0-9]{9}" placeholder="مثال: 0612345678" />
+      </div>
+      <div class="form-group">
+        <label for="spouseName">اسم الزوج(ة):</label>
+        <input type="text" id="spouseName" name="spouseName" />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="spouseLastName">نسب الزوج(ة):</label>
+        <input type="text" id="spouseLastName" name="spouseLastName" />
+      </div>
+      <div class="form-group">
+        <label for="spouseCNINumber">رقم البطاقة الوطنية للزوج(ة):</label>
+        <input type="text" id="spouseCNINumber" name="spouseCNINumber" pattern="[A-Za-z]{2}[0-9]{6}" placeholder="مثال: HA123456" />
+      </div>
+    </div>
+
+    <div class="form-footer">
+      <button type="submit" class="submit-button">تسجيل وطباعة الشكاية</button>
+    </div>
+  </form>
+<!-- استمارتك -->
+<form id="grantForm">
+  <!-- الحقول هنا -->
+</form>
+
+<!-- الملاحظة أسفل الاستمارة -->
+<div class="alert-box">
+  <strong>📌 ملاحظة هامة:</strong><br>
+  يُرفق هذا الطلب بنسخة من بطاقة التعريف الوطنية لولي أمر التلميذ(ة)، 
+  ووثيقة تُثبت المؤشر الاجتماعي للأسرة، 
+  بالإضافة إلى وثيقة تتضمن رمز مسار التلميذ(ة).
+</div>
+
+<style>
+.alert-box {
+  direction: rtl;
+  background-color: #fff8e1;
+  border: 1px solid #ffc107;
+  color: #795548;
+  padding: 15px;
+  border-radius: 8px;
+  font-size: 16px;
+  margin-top: 30px;
+  margin-bottom: 40px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.05);
+  line-height: 1.6;
+}
+</style>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBbM9-Bd_ct6nqGnRBsLp2M08ze9n4tLbo",
+      authDomain: "bourses-b1948.firebaseapp.com",
+      projectId: "bourses-b1948",
+      storageBucket: "bourses-b1948.firebasestorage.app",
+      messagingSenderId: "639203393196",
+      appId: "1:639203393196:web:05aa16c19762053d18a909",
+      measurementId: "G-7SNG6QZ000"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const form = document.getElementById('complaintForm');
+
+    function printCard(data) {
+      const printWindow = window.open('', '', 'width=450,height=700');
+      const content = `
+      <html lang="ar" dir="rtl">
+      <head>
+        <meta charset="UTF-8" />
+        <title>بطاقة شكاية المنحة الدراسية</title>
+        <style>
+          @import url('https://fonts.googleapis.com/css2?family=Amiri&display=swap');
+          body {
+            font-family: 'Amiri', serif;
+            direction: rtl;
+            background: #fff;
+            margin: 20px;
+            padding: 10px;
+            color: #333;
+          }
+          h1, h2 {
+            text-align: center;
+            margin: 0;
+            padding: 2px 0;
+            font-size: 8px; /* حجم أصغر */
+            line-height: 1.1;
+          }
+          h3 {
+            text-align: center;
+            margin: 15px 0;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 14px;
+          }
+          td {
+            border: 1px solid #999;
+            padding: 8px 10px;
+            vertical-align: top;
+          }
+          td.label {
+            width: 40%;
+            background-color: #f0f0f5;
+            font-weight: bold;
+            text-align: right;
+            direction: rtl;
+          }
+          td.value {
+            width: 60%;
+            text-align: right;
+            direction: rtl;
+          }
+          .signature {
+            margin-top: 40px;
+            text-align: left;
+            font-size: 14px;
+          }
+
+        
+        </style>
+      </head>
+      <body>
+        <h1>وزارة التربية الوطنية والتعليم الأولي والرياضة</h1>
+        <h2>الأكاديمية الجهوية للتربية والتكوين: مراكش آسفي</h2>
+        <h2>المديرية الإقليمية: اليوسفية</h2>
+        <h3>شكاية الحصول على المنحة الدراسية للموسم الدراسي 2025-2026</h3>
+
+        <table>
+  <tr><td class="label" colspan="2" style="background:#ddd; text-align:center; font-weight:bold;">معطيات التلميذ(ة)</td></tr>
+  <tr><td class="label">الاسم والنسب (التلميذ):</td><td class="value">${data.studentFirstName} ${data.studentLastName}</td></tr>
+  <tr><td class="label">رقم مسار:</td><td class="value">${data.massar}</td></tr>
+  <tr><td class="label">تاريخ ومكان الازدياد:</td><td class="value">${data.birthDatePlace}</td></tr>
+  <tr><td class="label">العنوان العائلي:</td><td class="value">${data.familyAddress}</td></tr>
+  <tr><td class="label">المؤسسة الأصلية:</td><td class="value">${data.originalSchool}</td></tr>
+  <tr><td class="label">الجماعة (الأصلية):</td><td class="value">${data.originalCommune}</td></tr>
+  <tr><td class="label">مؤسسة الاستقبال:</td><td class="value">${data.receptionSchool}</td></tr>
+  <tr><td class="label">الجماعة (الاستقبال):</td><td class="value">${data.receptionCommune}</td></tr>
+  <tr><td class="label">المسافة بين مؤسسة الاستقبال وعنوان السكن (كم):</td><td class="value">${data.distanceKm}</td></tr>
+  <tr><td class="label">المؤشر الاجتماعي للأسرة:</td><td class="value">${data.civilSocialId}</td></tr>
+  <tr><td class="label">الحالة الصحية:</td><td class="value">${data.healthStatus}</td></tr>
+  <tr><td class="label">الوضعية الاجتماعية:</td><td class="value">${data.socialStatus}</td></tr>
+
+  <tr><td class="label" colspan="2" style="background:#ddd; text-align:center; font-weight:bold;">معطيات ولي التلميذ(ة)</td></tr>
+
+  <tr><td class="label">الاسم والنسب (ولي الأمر):</td><td class="value">${data.guardianFirstName} ${data.guardianLastName}</td></tr>
+  <tr><td class="label">رقم البطاقة الوطنية (ولي الأمر):</td><td class="value">${data.guardianCNINumber}</td></tr>
+  <tr><td class="label">المهنة:</td><td class="value">${data.guardianJob}</td></tr>
+  <tr><td class="label">رقم الهاتف:</td><td class="value">${data.guardianPhone}</td></tr>
+  <tr><td class="label">اسم الزوج(ة):</td><td class="value">${data.spouseName || '-'}</td></tr>
+  <tr><td class="label">نسب الزوج(ة):</td><td class="value">${data.spouseLastName || '-'}</td></tr>
+  <tr><td class="label">رقم البطاقة الوطنية للزوج(ة):</td><td class="value">${data.spouseCNINumber || '-'}</td></tr>
+</table>
+        <div class="signature">
+          <div>التوقيع:</div>
+          <br><br>
+        </div>
+      </body>
+      </html>
+      `;
+
+      printWindow.document.write(content);
+      printWindow.document.close();
+
+      setTimeout(() => {
+        printWindow.focus();
+        printWindow.print();
+        printWindow.close();
+      }, 500);
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+
+      const formData = {
+        studentFirstName: form.studentFirstName.value.trim(),
+        studentLastName: form.studentLastName.value.trim(),
+        massar: form.massar.value.trim(),
+        birthDatePlace: form.birthDatePlace.value.trim(),
+        familyAddress: form.familyAddress.value.trim(),
+        originalSchool: form.originalSchool.value.trim(),
+        originalCommune: form.originalCommune.value.trim(),
+        receptionSchool: form.receptionSchool.value.trim(),
+        receptionCommune: form.receptionCommune.value.trim(),
+        distanceKm: parseFloat(form.distanceKm.value),
+        civilSocialId: form.civilSocialId.value.trim(),
+        guardianFirstName: form.guardianFirstName.value.trim(),
+        guardianLastName: form.guardianLastName.value.trim(),
+        guardianCNINumber: form.guardianCNINumber.value.trim(),
+        guardianJob: form.guardianJob.value.trim(),
+        guardianPhone: form.guardianPhone.value.trim(),
+        spouseName: form.spouseName.value.trim(),
+        spouseLastName: form.spouseLastName.value.trim(),
+        spouseCNINumber: form.spouseCNINumber.value.trim(),
+        healthStatus: form.healthStatus.value,
+        socialStatus: form.socialStatus.value,
+        timestamp: new Date().toISOString()
+      };
+
+      try {
+        await addDoc(collection(db, "scholarshipComplaints"), formData);
+        alert("تم تسجيل الشكاية بنجاح!");
+
+        printCard(formData);
+        form.reset();
+
+      } catch (error) {
+        alert("حدث خطأ أثناء التسجيل: " + error.message);
+        console.error(error);
+      }
+    });
+  </script>
+</body>
+</html>
