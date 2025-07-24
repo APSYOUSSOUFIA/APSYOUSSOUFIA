@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>النقل المدرسي بإقليم اليوسفية</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Amiri&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
 
     * {
       box-sizing: border-box;
@@ -15,8 +15,8 @@
     }
 
     body {
-      font-family: 'Amiri', 'Traditional Arabic', serif;
-      background-color: #f5f8fa;
+      font-family: 'Cairo', sans-serif;
+      background-color: #f4f6f9;
       color: #333;
       min-height: 100vh;
       display: flex;
@@ -28,27 +28,53 @@
       color: white;
       padding: 20px;
       text-align: center;
-      border-bottom: 5px solid #007bff;
+      border-bottom: 4px solid #007bff;
     }
 
     header h1 {
-      font-size: 18px;
-      margin-bottom: 5px;
+      font-size: 20px;
+      margin-bottom: 6px;
     }
 
     header h2 {
-      font-size: 15px;
+      font-size: 16px;
       font-weight: normal;
+    }
+
+    .scrolling-banner {
+      overflow: hidden;
+      background-color: #d92323;
+      color: #ffffff;
+      padding: 10px 0;
+      font-size: 16px;
+      font-weight: bold;
+      text-align: center;
+      direction: rtl;
+    }
+
+    .scrolling-text {
+      display: inline-block;
+      white-space: nowrap;
+      animation: scroll-right 40s linear infinite;
+    }
+
+    @keyframes scroll-right {
+      from {
+        transform: translateX(-100%);
+      }
+      to {
+        transform: translateX(100%);
+      }
     }
 
     main {
       flex: 1;
-      padding: 50px 20px;
+      padding: 40px 20px;
       text-align: center;
     }
 
     main h1 {
-      font-size: 26px;
+      font-size: 28px;
       color: #004080;
       margin-bottom: 40px;
     }
@@ -60,136 +86,70 @@
       gap: 20px;
     }
 
-    /* الأزرار تظل كما هي */
     .main-button {
-      padding: 15px 50px;
+      padding: 18px 30px;
       font-size: 18px;
       background-color: #007bff;
       color: white;
       text-decoration: none;
-      border-radius: 8px;
-      transition: background-color 0.3s ease;
-      width: 250px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      width: 260px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
     }
 
     .main-button:hover {
       background-color: #0056b3;
+      transform: scale(1.02);
     }
 
     footer {
       background: #004080;
       color: white;
       text-align: center;
-      padding: 10px;
-      font-size: 12px;
+      padding: 12px;
+      font-size: 14px;
       margin-top: auto;
       width: 100%;
     }
 
-    /* تحسين تجاوب العناوين بدون المساس بالأزرار */
-    @media (min-width: 600px) {
-      header h1 {
-        font-size: 20px;
-      }
-
-      header h2 {
-        font-size: 17px;
-      }
-
+    @media (max-width: 600px) {
       main h1 {
-        font-size: 32px;
+        font-size: 24px;
+      }
+
+      .main-button {
+        width: 90%;
+        font-size: 16px;
+        padding: 14px;
       }
     }
   </style>
-
-<style>
-.scrolling-banner {
-  overflow: hidden;
-  background-color: #e9070771;
-  color: #ffffff;
-  padding: 12px 0;
-  font-size: 18px;
-  font-weight: 600;
-  text-align: center;
-  direction: rtl;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-.scrolling-text {
-  display: inline-block;
-  white-space: nowrap;
-  animation: scroll-right 40s linear infinite;
-}
-
-@keyframes scroll-right {
-  from {
-    transform: translateX(-100%);
-  }
-  to {
-    transform: translateX(100%);
-  }
-}
-</style>
-
-
-
-
 </head>
 <body>
-
-
 
   <header>
     <h1>وزارة التربية الوطنية والتعليم الأولي والرياضة</h1>
     <h2>الأكاديمية الجهوية مراكش آسفي - المديرية الإقليمية اليوسفية</h2>
   </header>
 
-<!-- 🔹 شريط الإعلانات -->
-<div class="scrolling-banner">
-  <div class="scrolling-text">
-      ●  المرجو التأكد من رقم مسار قبل ملء أي استمارة ● التسجيل في النقل المدرسي مفتوح برسم الموسم الداسي 2025-2026 ● شكايات المنحة الدراسية متاحة إلى غاية 30 شتنبر ● تم إرسال منحة الدخول المدرسي للأسر المستفيدة لشراء الكتب واللوازم المدرسية برسم الموسم الدراسي 2025-2026
+  <div class="scrolling-banner">
+    <div class="scrolling-text">
+      ● المرجو التأكد من رقم مسار قبل ملء أي استمارة ● التسجيل في النقل المدرسي مفتوح برسم الموسم الدراسي 2025-2026 ● شكايات المنحة الدراسية متاحة إلى غاية 30 شتنبر ● تم إرسال منحة الدخول المدرسي للأسر المستفيدة لشراء الكتب واللوازم المدرسية برسم الموسم الدراسي 2025-2026
+    </div>
   </div>
-</div>
 
   <main>
     <h1>الدعم الاجتماعي بالمديرية الإقليمية اليوسفية</h1>
 
     <div class="button-container">
-
-  <button onclick="window.location.href='login.html'" style="
-  padding: 20px 30px;
-  font-size: 18px;
-  background-color: #007bff;
-  color: white;
-  text-decoration: none;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  width: 250px;
-">
-  بطاقة النقل المدرسي
-</button>
-          <div class="button-container">
-
-  <button onclick="window.location.href='login1.html'" style="
-  padding: 20px 30px;
-  font-size: 18px;
-  background-color: #007bff;
-  color: white;
-  text-decoration: none;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  width: 250px;
-">
-  أسطول النقل المدرسي
-</button>
+      <a href="login.html" class="main-button">بطاقة النقل المدرسي</a>
+      <a href="login1.html" class="main-button">أسطول النقل المدرسي</a>
       <a href="bourses.html" class="main-button">شكاية الحصول على المنحة الدراسية</a>
-      <a href="منحة الدخول المدرسي.html" class="main-button">منحة الدخول المدرسي </a>
+      <a href="منحة الدخول المدرسي.html" class="main-button">منحة الدخول المدرسي</a>
     </div>
   </main>
 
@@ -197,9 +157,10 @@
     © 2025-2026 جميع الحقوق محفوظة
   </footer>
 
+  <!-- Firebase Initialization -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+    import { getAuth } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyApGwWAoqO-cNJ0MGCZYhv62n1pc93C8JY",
@@ -212,7 +173,7 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-
   </script>
+
 </body>
 </html>
