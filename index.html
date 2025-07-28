@@ -57,6 +57,10 @@
       white-space: nowrap;
       animation: scroll-right 40s linear infinite;
     }
+       /* توقف التحريك عند المرور على النص */
+    .scrolling-text:hover {
+      animation-play-state: paused;
+    }
 
     @keyframes scroll-right {
       from {
