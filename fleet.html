@@ -55,15 +55,26 @@ async function submitAndSave() {
     alert('⚠️ المرجو اختيار جهة واحدة على الأقل من الجهات المانحة.');
     return;
   }
+// التحقق من حالة الاشتغال
+const status = document.querySelector('select[name="status"]').value;
+const skipInstitutionCheck = (status === 'لا تشتغل');
 
   // تحقق وجود مؤسسة تعليمية واحدة على الأقل
+  const institutionEls = document.querySelectorAll('.institution');
+if (!skipInstitutionCheck && institutionEls.length === 0) {
+  alert('⚠️ المرجو إضافة مؤسسة تعليمية واحدة على الأقل.');
+  return;
+}
+
+
+// التحقق من المؤسسات والدواوير
+if (!skipInstitutionCheck) {
   const institutionEls = document.querySelectorAll('.institution');
   if (institutionEls.length === 0) {
     alert('⚠️ المرجو إضافة مؤسسة تعليمية واحدة على الأقل.');
     return;
   }
 
-  // تحقق المؤسسات والدواوير كما في كودك الأصلي...
   for (const instEl of institutionEls) {
     const levelSelect = instEl.querySelector('select[name^="school_level_"]');
     if (!levelSelect || !levelSelect.value) {
@@ -87,6 +98,7 @@ async function submitAndSave() {
           return;
         }
       }
+
       const beneficiaries_total = parseInt(villageEl.querySelector(`[name^="beneficiaries_total_"]`).value);
       const beneficiaries_female = parseInt(villageEl.querySelector(`[name^="beneficiaries_female_"]`).value);
 
@@ -97,6 +109,7 @@ async function submitAndSave() {
       }
     }
   }
+}
 
   // تجميع البيانات من النموذج
   const formData = new FormData(form);
@@ -516,7 +529,7 @@ window.submitAndSave = submitAndSave;
     </select>
   </div>
   <div>
-    <label> حالتها الميكانيكية:</label>
+    <label>حالتها الميكانيكية:</label>
     <select name="mechanical_condition" required>
       <option value="">-- اختر --</option>
       <option value="جيدة">جيدة</option>
